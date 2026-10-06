@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ankieta – AI w naszej pracy</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1d2330; --muted:#5d6675; --line:#dde1e7;
+    --accent:#c8501e; --accent-ink:#ffffff; --focus:#1f6feb; --ok:#1c7c4a; --err:#b42318;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#15181d; --card:#1e232b; --ink:#e9ecf1; --muted:#a3acb9; --line:#323946;
+           --accent:#e2703f; --accent-ink:#15181d; --focus:#6ea8ff; --ok:#4cc38a; --err:#ff7b72; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  main{max-width:720px;margin:0 auto;padding:24px 16px 64px}
+  header h1{font-size:1.6rem;line-height:1.25;margin:0 0 8px}
+  header p{margin:0 0 8px;color:var(--muted)}
+  .note{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);
+        border-radius:8px;padding:12px 14px;margin:16px 0 24px;font-size:.95rem}
+  fieldset{background:var(--card);border:1px solid var(--line);border-radius:10px;
+           padding:16px 16px 12px;margin:0 0 16px}
+  legend{font-weight:600;padding:0 6px;font-size:1.02rem}
+  .hint{color:var(--muted);font-size:.9rem;margin:-2px 0 10px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;border-radius:6px;cursor:pointer}
+  .opt:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  .opt input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+  .scale{display:flex;gap:6px;flex-wrap:wrap}
+  .scale label{flex:1 1 56px;text-align:center;border:1px solid var(--line);border-radius:8px;
+               padding:8px 4px;cursor:pointer}
+  .scale input{display:block;margin:0 auto 4px;accent-color:var(--accent)}
+  .scale-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-top:6px}
+  textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:transparent;
+       border:1px solid var(--line);border-radius:8px;padding:10px}
+  textarea{min-height:110px;resize:vertical}
+  .other{margin:4px 0 6px 32px;width:calc(100% - 32px)}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  .hidden{display:none}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  button{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;
+         border-radius:10px;padding:14px 22px;cursor:pointer;width:100%}
+  button[disabled]{opacity:.6;cursor:progress}
+  .msg{margin-top:14px;font-weight:600}
+  .msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
+  .thanks{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;text-align:center}
+  .req{color:var(--accent)}
+  footer{color:var(--muted);font-size:.85rem;margin-top:24px}
+  .brand{display:flex;align-items:center;gap:12px;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .brand img{height:44px;width:auto;background:#fff;border-radius:6px;padding:4px 6px;flex:none}
+  .brand span{font-weight:600;font-size:.95rem;color:var(--muted);line-height:1.3}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand"><img src="data:image/jpeg;base64,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" alt="Logo BIn"><span>BIn-Biuro Inżynierskie Sp.&nbsp;z&nbsp;o.o.</span></div>
+    <h1>Sztuczna inteligencja w&nbsp;naszej pracy – krótka ankieta</h1>
+    <p>Ok. 3–5 minut. Odpowiedzi pomogą przygotować spotkanie o zastosowaniach AI w budownictwie tak, żeby dotyczyło realnych problemów z naszej codziennej pracy.</p>
+  </header>
+
+  <div class="note">
+    <strong>Ankieta jest anonimowa.</strong> Nie trzeba się logować. Autor ankiety nie widzi imienia, nazwiska, adresu e-mail ani adresu IP osoby wypełniającej, a w arkuszu zapisuje się tylko dzień wysłania (bez godziny). Nie ma złych odpowiedzi – odpowiedź „nie używam” jest tak samo cenna jak każda inna.
+    W pytaniach otwartych <strong>nie wpisuj nazwisk ani danych, po których można Cię rozpoznać</strong>.
+  </div>
+
+  <form id="survey" novalidate>
+    <!-- Pułapka na boty (niewidoczna dla ludzi) -->
+    <div class="hp" aria-hidden="true"><label>Nie wypełniaj <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+    <fieldset>
+      <legend>Czy korzystasz z narzędzi AI (np. czatów AI) w pracy? <span class="req">*</span></legend>
+      <label class="opt"><input type="radio" name="q1_uzycie" value="Tak, regularnie (co najmniej raz w tygodniu)" required> Tak, regularnie (co najmniej raz w tygodniu)</label>
+      <label class="opt"><input type="radio" name="q1_uzycie" value="Tak, sporadycznie"> Tak, sporadycznie</label>
+      <label class="opt"><input type="radio" name="q1_uzycie" value="Nie, ale próbowałem/am prywatnie"> Nie w pracy, ale próbowałem/am prywatnie</label>
+      <label class="opt"><input type="radio" name="q1_uzycie" value="Nie"> Nie</label>
+    </fieldset>
+
+    <!-- Sekcja dla używających -->
+    <div id="sec-yes" class="hidden">
+      <fieldset>
+        <legend>Z jakich narzędzi korzystasz?</legend>
+        <p class="hint">Można zaznaczyć kilka.</p>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="ChatGPT"> ChatGPT (OpenAI)</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Claude"> Claude (Anthropic)</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Gemini"> Gemini (Google)</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Microsoft Copilot"> Microsoft Copilot (w tym w Word/Excel/Outlook)</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Perplexity"> Perplexity</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Nie wiem"> Nie wiem / nie pamiętam</label>
+        <label class="opt"><input type="checkbox" name="q2_narzedzia" value="Inne" data-other="q2_inne"> Inne</label>
+        <input type="text" class="other hidden" id="q2_inne" name="q2_inne" maxlength="200" placeholder="Jakie?">
+      </fieldset>
+
+      <fieldset>
+        <legend>Z jakiego konta najczęściej korzystasz?</legend>
+        <p class="hint">Pytamy, żeby wiedzieć, czy firma powinna zapewnić dostęp i zasady – nie żeby kogokolwiek rozliczać.</p>
+        <label class="opt"><input type="radio" name="q3_konto" value="Prywatne darmowe"> Prywatne, darmowe</label>
+        <label class="opt"><input type="radio" name="q3_konto" value="Prywatne płatne"> Prywatne, płatne</label>
+        <label class="opt"><input type="radio" name="q3_konto" value="Firmowe"> Firmowe</label>
+        <label class="opt"><input type="radio" name="q3_konto" value="Nie wiem"> Nie wiem</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Do czego używasz AI?</legend>
+        <p class="hint">Można zaznaczyć kilka.</p>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Maile i pisma"> Maile, pisma, korespondencja</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Streszczanie dokumentów"> Streszczanie długich dokumentów</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Umowy i specyfikacje"> Analiza umów, SWZ, specyfikacji technicznych</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Przepisy i normy"> Wyszukiwanie przepisów i norm</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Tłumaczenia"> Tłumaczenia</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Protokoły i notatki"> Protokoły i notatki ze spotkań</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Excel i dane"> Excel, zestawienia, analiza danych</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Oferty, kosztorysy, harmonogramy"> Oferty, kosztorysy, harmonogramy</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Zdjęcia i dokumentacja z budowy"> Zdjęcia i dokumentacja z budowy</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Makra i programowanie"> Makra, skrypty, programowanie</label>
+        <label class="opt"><input type="checkbox" name="q4_zastosowania" value="Inne" data-other="q4_inne"> Inne</label>
+        <input type="text" class="other hidden" id="q4_inne" name="q4_inne" maxlength="200" placeholder="Do czego?">
+      </fieldset>
+    </div>
+
+    <!-- Sekcja dla nieużywających -->
+    <div id="sec-no" class="hidden">
+      <fieldset>
+        <legend>Co Cię powstrzymuje przed używaniem AI w pracy?</legend>
+        <p class="hint">Można zaznaczyć kilka.</p>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Nie wiem jak zacząć"> Nie wiem, jak zacząć</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Brak czasu"> Brak czasu, żeby się nauczyć</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Nie widzę zastosowania"> Nie widzę zastosowania w mojej pracy</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Nie ufam wynikom"> Nie ufam wynikom (błędy, zmyślanie)</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Obawy o dane firmowe"> Obawy o bezpieczeństwo danych firmowych</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Brak zasad/zgody w firmie"> Nie wiem, czy firma na to pozwala</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Brak dostępu/konta"> Brak dostępu / konta</label>
+        <label class="opt"><input type="checkbox" name="q5_bariery" value="Inne" data-other="q5_inne"> Inne</label>
+        <input type="text" class="other hidden" id="q5_inne" name="q5_inne" maxlength="200" placeholder="Co?">
+      </fieldset>
+    </div>
+
+    <fieldset>
+      <legend>Jak oceniasz swoją umiejętność korzystania z AI?</legend>
+      <div class="scale" role="radiogroup">
+        <label><input type="radio" name="q6_poziom" value="1">1</label>
+        <label><input type="radio" name="q6_poziom" value="2">2</label>
+        <label><input type="radio" name="q6_poziom" value="3">3</label>
+        <label><input type="radio" name="q6_poziom" value="4">4</label>
+        <label><input type="radio" name="q6_poziom" value="5">5</label>
+      </div>
+      <div class="scale-ends"><span>1 – zupełnie początkujący/a</span><span>5 – swobodnie</span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Czy wiesz, jakich informacji firmowych nie należy wpisywać do narzędzi AI?</legend>
+      <label class="opt"><input type="radio" name="q7_dane" value="Tak"> Tak</label>
+      <label class="opt"><input type="radio" name="q7_dane" value="Nie jestem pewien/pewna"> Nie jestem pewien/pewna</label>
+      <label class="opt"><input type="radio" name="q7_dane" value="Nie"> Nie</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Czy masz pomysł, w jaki sposób AI mogłaby pomóc w Twojej pracy? <span class="req">*</span></legend>
+      <p class="hint">Najważniejsze pytanie ankiety. Opisz własnymi słowami – nawet krótko. Jeśli nie masz pomysłu, wpisz „brak”.</p>
+      <textarea name="q8_pomysl" maxlength="3000" required placeholder="Np. przygotowanie protokołu z narady na podstawie notatek, sprawdzenie oferty podwykonawcy względem specyfikacji…"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Jakie powtarzalne zadanie zabiera Ci najwięcej czasu w tygodniu?</legend>
+      <p class="hint">Nawet jeśli nie wiesz, czy AI mogłaby w nim pomóc.</p>
+      <textarea name="q9_zadanie" maxlength="2000" placeholder="Np. przepisywanie danych z dokumentów do Excela, uzupełnianie dziennika, zestawienia dla inwestora…"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Co chciał(a)byś zobaczyć na spotkaniu o AI?</legend>
+      <p class="hint">Można zaznaczyć kilka.</p>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Podstawy – jak pisać polecenia"> Podstawy – jak zadawać pytania / pisać polecenia</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Bezpieczeństwo danych i zasady"> Bezpieczeństwo danych, prawo i zasady korzystania</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Umowy, SWZ, specyfikacje"> Praca z umowami, SWZ, specyfikacjami</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Korespondencja i protokoły"> Korespondencja, protokoły, raporty</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Excel i analiza danych"> Excel i analiza danych</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Zdjęcia i dokumentacja budowy"> Zdjęcia i dokumentacja z budowy</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Porównanie narzędzi"> Porównanie narzędzi (co do czego wybrać)</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Automatyzacja powtarzalnych zadań"> Automatyzacja powtarzalnych zadań</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Pokazy na przykładach z naszych budów"> Pokazy na przykładach z naszych budów</label>
+      <label class="opt"><input type="checkbox" name="q10_tematy" value="Inne" data-other="q10_inne"> Inne</label>
+      <input type="text" class="other hidden" id="q10_inne" name="q10_inne" maxlength="200" placeholder="Co jeszcze?">
+    </fieldset>
+
+    <fieldset>
+      <legend>Obszar Twojej pracy (opcjonalnie)</legend>
+      <p class="hint">Tylko ogólnie, żeby dopasować przykłady. Wyniki będą analizowane wyłącznie zbiorczo.</p>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Realizacja – budowa"> Realizacja – budowa</label>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Przygotowanie – oferty, kosztorysy, zakupy"> Przygotowanie – oferty, kosztorysy, zakupy</label>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Projektowanie / technika"> Projektowanie / dział techniczny</label>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Biuro – administracja, finanse, kadry"> Biuro – administracja, finanse, kadry</label>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Kierownictwo firmy i zarząd"> Kierownictwo firmy i zarząd</label>
+      <label class="opt"><input type="radio" name="q11_obszar" value="Wolę nie podawać"> Wolę nie podawać</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Obawy, uwagi, pytania do prowadzącego (opcjonalnie)</legend>
+      <textarea name="q12_uwagi" maxlength="2000" placeholder="Wszystko, co chcesz przekazać przed spotkaniem."></textarea>
+    </fieldset>
+
+    <button type="submit" id="send">Wyślij odpowiedzi</button>
+    <div id="msg" class="msg" role="status" aria-live="polite"></div>
+  </form>
+
+  <div id="thanks" class="thanks hidden">
+    <h2>Dziękuję!</h2>
+    <p>Odpowiedzi zostały wysłane. Wyniki zbiorcze omówię na spotkaniu.</p>
+  </div>
+
+  <footer>Ankieta przygotowana na potrzeby wewnętrznego spotkania o AI. Dane przechowywane w arkuszu dostępnym tylko dla autora ankiety i wykorzystywane wyłącznie zbiorczo.</footer>
+</main>
+
+<script>
+/* ================== KONFIGURACJA ==================
+   Wklej adres aplikacji internetowej Google Apps Script (kończy się na /exec).
+   Instrukcja: INSTRUKCJA.md, krok 2.
+   Pusta wartość = tryb testowy (nic nie jest wysyłane, dane pokażą się w konsoli). */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzaXoJxPrkGyiNBOGp_ec0k0TYRnrwLtG4dD93sembNAJnDroHMjDE6p6fcksT3FPBTHw/exec";
+/* ================================================== */
+
+const form = document.getElementById('survey');
+const secYes = document.getElementById('sec-yes');
+const secNo  = document.getElementById('sec-no');
+const msg    = document.getElementById('msg');
+const btn    = document.getElementById('send');
+
+// Pokazywanie sekcji zależnie od odpowiedzi na pytanie 1
+form.addEventListener('change', e => {
+  if (e.target.name === 'q1_uzycie') {
+    const yes = e.target.value.startsWith('Tak');
+    secYes.classList.toggle('hidden', !yes);
+    secNo.classList.toggle('hidden', yes);
+  }
+  if (e.target.dataset.other) {
+    const box = document.getElementById(e.target.dataset.other);
+    box.classList.toggle('hidden', !e.target.checked);
+    if (e.target.checked) box.focus();
+  }
+});
+
+// Zbieranie odpowiedzi; pola z ukrytych sekcji są pomijane
+function collect() {
+  const data = {};
+  const skip = el => el.closest('.hidden') && el.name !== 'website';
+  for (const el of form.elements) {
+    if (!el.name || skip(el)) continue;
+    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
+    const v = (el.value || '').trim();
+    if (!v) continue;
+    data[el.name] = data[el.name] ? data[el.name] + '; ' + v : v;
+  }
+  return data;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  msg.className = 'msg'; msg.textContent = '';
+  const data = collect();
+
+  if (!data.q1_uzycie) { msg.className = 'msg err'; msg.textContent = 'Zaznacz odpowiedź w pierwszym pytaniu.'; return; }
+  if (!data.q8_pomysl) { msg.className = 'msg err'; msg.textContent = 'Uzupełnij pytanie o pomysł na AI (możesz wpisać „brak”).'; return; }
+  if (data.website) return; // bot
+
+  btn.disabled = true; btn.textContent = 'Wysyłanie…';
+  try {
+    if (!GAS_URL) {
+      console.log('TRYB TESTOWY – dane nie zostały wysłane:', data);
+    } else {
+      // Zwykłe żądanie formularza (bez nagłówków niestandardowych) – omija ograniczenia CORS Google.
+      await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+    }
+    form.classList.add('hidden');
+    document.getElementById('thanks').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Wyślij odpowiedzi';
+    msg.className = 'msg err';
+    msg.textContent = 'Nie udało się wysłać (brak połączenia?). Spróbuj ponownie za chwilę.';
+  }
+});
+</script>
+</body>
+</html>
